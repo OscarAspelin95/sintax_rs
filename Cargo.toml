@@ -1,0 +1,15 @@
+[package]
+name = "sintax_rs"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+rayon = { version = "1.10.0" }
+rstest = { version = "0.25.0" }
+clap = { version = "4.5.39", features = ["derive"] }
+log = { version = "0.4.27" }
+simple_logger = { version = "5.0.0" }
+bio = { version = "2.3.0" }
+flate2 = { version = "1.1.1" }
+rand = { version = "0.9.1" }
+fixedbitset = { version = "0.5.7" }
