@@ -1,27 +1,25 @@
-use fixedbitset::FixedBitSet;
-use std::collections::HashMap;
-
 use crate::kmers::kmerize;
 use crate::utils::Config;
+use bio::io::fasta::Reader;
+use dashmap::DashMap;
+use rayon::prelude::*;
+use std::collections::HashSet;
+use std::fs::File;
+use std::io::BufReader;
 
-/// Check if this can be parallelized (with DashMap?)
-pub fn build_reverse_index(references: &Vec<&[u8]>, config: &Config) -> HashMap<u64, FixedBitSet> {
-    let bitset_len = references.len();
-    let mut map: HashMap<u64, FixedBitSet> = HashMap::new();
+pub fn build_reverse_index(
+    reference_reader: Reader<BufReader<File>>,
+    config: &Config,
+) -> DashMap<String, HashSet<u64>> {
+    // For now, store ref id as string, hashes as set.
+    let map: DashMap<String, HashSet<u64>> = DashMap::with_capacity(400_000);
 
-    references.iter().enumerate().for_each(|(i, ref_seq)| {
-        let hashes = kmerize(config, ref_seq);
+    reference_reader.records().par_bridge().for_each(|record| {
+        let r = record.unwrap();
+        let hashes = kmerize(config, &r.seq());
 
-        hashes.iter().for_each(|h| {
-            // If hash exists, flip bit at position i
-            // If hash does not exists, create new fixedbitset.
-            if !map.contains_key(&h) {
-                map.insert(*h, FixedBitSet::with_capacity(bitset_len));
-            }
-
-            let bitset = map.get_mut(&h).unwrap();
-            bitset.set(i, true);
-        });
+        // We don't like this .to_owned() because we convert &str to String.
+        map.insert(r.id().to_owned(), hashes);
     });
 
     return map;
