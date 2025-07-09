@@ -9,10 +9,10 @@ pub struct Config {
 impl Config {
     pub fn default() -> Self {
         return Self {
-            kmer_size: 5,
-            num_bootstraps: 5,
-            num_query_hashes: 10,
-            num_top_references: 2,
+            kmer_size: 7,
+            num_bootstraps: 100,
+            num_query_hashes: 32,
+            num_top_references: 1,
             ds_factor: 1,
         };
     }

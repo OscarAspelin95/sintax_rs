@@ -50,43 +50,37 @@ fn mock_queries<'a>() -> (Vec<&'a str>, Vec<&'a [u8]>) {
     return (query_names, query_sequences);
 }
 
-// fn get_real_query() -> Reader<BufReader<File>> {
-//     let query_fasta = PathBuf::from("/home/oscar/github/sintax_rs/query.fasta");
-//     assert!(query_fasta.is_file());
-//     let reader = Reader::from_file(query_fasta).unwrap();
+fn get_real_query() -> Reader<BufReader<File>> {
+    let query_fasta = PathBuf::from("/home/oscar/github/sintax_rs/query.fasta");
+    assert!(query_fasta.is_file());
+    let reader = Reader::from_file(query_fasta).unwrap();
 
-//     return reader;
-// }
+    return reader;
+}
 
-// fn get_real_reference() -> Reader<BufReader<File>> {
-//     let reference_fasta = PathBuf::from("/home/oscar/github/sintax_rs/silva.fasta");
-//     assert!(reference_fasta.is_file());
-//     let reader = Reader::from_file(reference_fasta).unwrap();
+fn get_real_reference() -> Reader<BufReader<File>> {
+    let reference_fasta = PathBuf::from("/home/oscar/github/sintax_rs/silva.fasta");
+    assert!(reference_fasta.is_file());
+    let reader = Reader::from_file(reference_fasta).unwrap();
 
-//     return reader;
-// }
+    return reader;
+}
 fn main() {
     SimpleLogger::new().init().unwrap();
 
     info!("Building reverse index...");
     let config = Config::default();
 
-    // Mock references for now.
-    let (reference_names, reference_seqs): (Vec<&str>, Vec<&[u8]>) = mock_reference();
+    // Read reference fasta.
+    let reference_reader: Reader<BufReader<File>> = get_real_reference();
 
     // Build reverse index for entire database.
-    let reverse_index = build_reverse_index(&reference_seqs, &config);
+    let reverse_index = build_reverse_index(reference_reader, &config);
 
-    // Mock queries for now.
-    let (query_names, query_seqs) = mock_queries();
+    // Read query fasta.
+    let query_reader: Reader<BufReader<File>> = get_real_query();
 
     //
     info!("Classifying queries...");
-    let _ = classify_queries(
-        &config,
-        &reverse_index,
-        &query_names,
-        &query_seqs,
-        &reference_names,
-    );
+    classify_queries(&config, &reverse_index, query_reader);
 }
