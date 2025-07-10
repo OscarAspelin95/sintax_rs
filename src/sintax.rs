@@ -21,43 +21,44 @@ pub fn bootstrap_classify_query(
 
     // Bootstrap iterations.
     for i in 0..config.num_bootstraps {
-        // Randomly shuffle query hashes and take num_query_hashes first hashes.
-        // NOTE - here we should use sampling WITH replacement, which we currently don't.
-        let mut query_vec: Vec<&u64> = query_hashes.iter().collect();
-        query_vec.shuffle(&mut rng);
-        let random_hashes: HashSet<u64> = query_vec
-            .into_iter()
-            .take(config.num_query_hashes)
-            .map(|x| *x)
-            .collect();
+        // // What takes time is this step.
+        // // Randomly shuffle query hashes and take num_query_hashes first hashes.
+        // // NOTE - here we should use sampling WITH replacement, which we currently don't.
+        // let mut query_vec: Vec<&u64> = query_hashes.iter().collect();
+        // query_vec.shuffle(&mut rng);
+        // let random_hashes: HashSet<u64> = query_vec
+        //     .into_iter()
+        //     .take(config.num_query_hashes)
+        //     .map(|x| *x)
+        //     .collect();
 
-        // We have our random hashes, now we need to check which references
-        // they match against and increment their counts.
-        let mut count_vec: Vec<(String, usize)> = Vec::with_capacity(reverse_index.len());
+        // // We have our random hashes, now we need to check which references
+        // // they match against and increment their counts.
+        // let mut count_vec: Vec<(String, usize)> = Vec::with_capacity(reverse_index.len());
 
-        reverse_index.iter().for_each(|r| {
-            let ref_name = r.key();
-            let ref_hashes = r.value();
+        // reverse_index.iter().for_each(|r| {
+        //     let ref_name = r.key();
+        //     let ref_hashes = r.value();
 
-            let num_matching = ref_hashes.intersection(&random_hashes).count();
+        //     let num_matching = ref_hashes.intersection(&random_hashes).count();
 
-            if num_matching <= 3 {
-                return;
-            }
+        //     if num_matching <= 3 {
+        //         return;
+        //     }
 
-            count_vec.push((ref_name.to_owned(), num_matching));
-        });
+        //     count_vec.push((ref_name.to_owned(), num_matching));
+        // });
 
-        // Sort by largest count.
-        count_vec.sort_by(|a, b| Reverse(b.1).cmp(&Reverse(a.1)));
+        // // Sort by largest count.
+        // count_vec.sort_by(|a, b| Reverse(b.1).cmp(&Reverse(a.1)));
 
-        count_vec
-            .iter()
-            .take(config.num_top_references)
-            .for_each(|(ref_name, count)| {
-                println!("{query_name}\t{ref_name}\t{i}\t{count}");
-                std::io::stdout().flush().unwrap();
-            });
+        // count_vec
+        //     .iter()
+        //     .take(config.num_top_references)
+        //     .for_each(|(ref_name, count)| {
+        //         println!("{query_name}\t{ref_name}\t{i}\t{count}");
+        //         std::io::stdout().flush().unwrap();
+        //     });
     }
 }
 

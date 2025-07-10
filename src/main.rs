@@ -78,9 +78,9 @@ fn main() {
     let reverse_index = build_reverse_index(reference_reader, &config);
 
     // Read query fasta.
-    let query_reader: Reader<BufReader<File>> = get_real_query();
+    // let query_reader: Reader<BufReader<File>> = get_real_query();
 
     //
     info!("Classifying queries...");
-    classify_queries(&config, &reverse_index, query_reader);
+    // classify_queries(&config, &reverse_index, query_reader);
 }
