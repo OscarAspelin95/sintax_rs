@@ -26,6 +26,11 @@ pub fn mm_hash64(kmer: u64) -> u64 {
 }
 
 /// Here, we get the canonical kmers from a nucleotide string.
+/// However, we don't actually necessarily need a u64. Would be better
+/// to have it dependent on the kmer size to save memory:
+/// k <= 7 -> use u16.
+/// k <= 15 -> use u32.
+/// k <= 31 => use u64.
 pub fn kmerize(config: &Config, nt_string: &[u8]) -> HashSet<u64> {
     assert!(config.kmer_size <= nt_string.len());
 

@@ -12,7 +12,6 @@ simple_logger = { version = "5.0.0" }
 bio = { version = "2.3.0" }
 flate2 = { version = "1.1.1" }
 rand = { version = "0.9.1" }
-fixedbitset = { version = "0.5.7" }
-dashmap = { version = "6.1.0" }
+# fixedbitset = { version = "0.5.7" }
+# dashmap = { version = "6.1.0" }
 samply = { version = "0.13.1" }
-base64 = { version = "0.22.1" }
