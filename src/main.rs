@@ -4,83 +4,55 @@ mod sintax;
 mod utils;
 
 use bio::io::fasta::Reader;
+use clap::Parser;
 use index::build_reverse_index;
 use log::info;
 use simple_logger::SimpleLogger;
 use sintax::classify_queries;
 use std::fs::File;
-use std::io::BufReader;
+use std::io::{BufReader, BufWriter};
 use std::path::PathBuf;
 use utils::Config;
 
-fn mock_reference<'a>() -> (Vec<&'a str>, Vec<&'a [u8]>) {
-    let mut reference_names: Vec<&str> = Vec::new();
-    let mut reference_sequences: Vec<&[u8]> = Vec::new();
+fn fasta_reader(f: &PathBuf) -> Reader<BufReader<File>> {
+    assert!(f.is_file());
 
-    let r: Vec<(&str, &[u8])> = vec![
-        ("r1", b"ATCGAAAGGGTTTGGAGATAGATAGATAGAGCGACGGACTGCAGCTG"),
-        ("r2", b"AAAAAGGGGGGGGGGGGGGGGGGG"),
-        ("r3", b"ATCGAAAGGGTTTGGAGATAGATAGATAGAGCGACGGACTGCAGCTG"),
-        ("r4", b"NNNNNNNNNNNNNNNNNNNNNNNNNN"),
-        ("r5", b"NNNNNNNNNNNNNNNNNNNNNNNNNN"),
-    ];
-
-    r.iter().for_each(|(ref_name, ref_seq)| {
-        reference_names.push(ref_name);
-        reference_sequences.push(ref_seq);
-    });
-
-    return (reference_names, reference_sequences);
-}
-
-fn mock_queries<'a>() -> (Vec<&'a str>, Vec<&'a [u8]>) {
-    let mut query_names: Vec<&str> = Vec::new();
-    let mut query_sequences: Vec<&[u8]> = Vec::new();
-
-    let q: Vec<(&str, &[u8])> = vec![(
-        "q1",
-        b"ATCGAAAGGGTTTGGAGATAGATAGATAGAGCGACGGACTGCAGCTGCAGCTGCAGCT",
-    )];
-
-    q.iter().for_each(|(query_name, query_seq)| {
-        query_names.push(query_name);
-        query_sequences.push(query_seq);
-    });
-
-    return (query_names, query_sequences);
-}
-
-fn get_real_query() -> Reader<BufReader<File>> {
-    let query_fasta = PathBuf::from("/home/oscar/github/sintax_rs/query.fasta");
-    assert!(query_fasta.is_file());
-    let reader = Reader::from_file(query_fasta).unwrap();
-
+    let reader = Reader::from_file(f).unwrap();
     return reader;
 }
 
-fn get_real_reference() -> Reader<BufReader<File>> {
-    let reference_fasta = PathBuf::from("/home/oscar/github/sintax_rs/silva.fasta");
-    assert!(reference_fasta.is_file());
-    let reader = Reader::from_file(reference_fasta).unwrap();
+#[derive(Parser, Debug)]
+struct Args {
+    #[arg(short, long)]
+    query: PathBuf,
 
-    return reader;
+    #[arg(short, long)]
+    subject: PathBuf,
+
+    #[arg(short, long)]
+    outfile: PathBuf,
 }
 fn main() {
     SimpleLogger::new().init().unwrap();
 
-    info!("Building reverse index...");
+    let args = Args::parse();
+
+    // Setup some config stuff.
     let config = Config::default();
 
     // Read reference fasta.
-    let reference_reader: Reader<BufReader<File>> = get_real_reference();
+    let reference_reader: Reader<BufReader<File>> = fasta_reader(&args.subject);
 
     // Build reverse index for entire database.
+    info!("Building reverse index...");
     let reverse_index = build_reverse_index(reference_reader, &config);
 
     // Read query fasta.
-    // let query_reader: Reader<BufReader<File>> = get_real_query();
+    let query_reader: Reader<BufReader<File>> = fasta_reader(&args.query);
+
+    let mut writer = BufWriter::new(File::create(&args.outfile).unwrap());
 
     //
     info!("Classifying queries...");
-    // classify_queries(&config, &reverse_index, query_reader);
+    classify_queries(&config, &reverse_index, query_reader, &mut writer);
 }
