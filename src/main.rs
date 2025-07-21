@@ -50,9 +50,9 @@ fn main() {
     // Read query fasta.
     let query_reader: Reader<BufReader<File>> = fasta_reader(&args.query);
 
+    // For writing results to file.
     let mut writer = BufWriter::new(File::create(&args.outfile).unwrap());
 
-    //
     info!("Classifying queries...");
     classify_queries(&config, &reverse_index, query_reader, &mut writer);
 }

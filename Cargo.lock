@@ -2888,6 +2888,7 @@ dependencies = [
  "bio",
  "clap",
  "flate2",
+ "fxhash",
  "log",
  "rand 0.9.1",
  "rayon",
