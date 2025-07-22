@@ -2,6 +2,7 @@ use crate::kmers::kmerize;
 use crate::utils::Config;
 use bio::io::fasta::Reader;
 use rand::prelude::*;
+use rustc_hash::{FxBuildHasher, FxHashMap};
 use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::io::BufWriter;
@@ -19,17 +20,24 @@ pub fn bootstrap_classify_query(
     // For randomizing hashes.
     let mut rng: ThreadRng = rand::rng();
 
+    // We'll shuffle index vec instead of actual hashes.
+    let mut indexes: Vec<usize> = (0..query_hashes.len()).collect();
+
     // Bootstrap iterations.
     for i in 0..config.num_bootstraps {
+        indexes.shuffle(&mut rng);
+
         // Randomly pick hashes (currently without replacement).
-        query_hashes.shuffle(&mut rng);
-        let random_hashes: &[&u64] =
-            &query_hashes[..config.num_query_hashes.min(query_hashes.len())];
+        let random_hashes: &Vec<&u64> = &indexes[..config.num_query_hashes.min(query_hashes.len())]
+            .iter()
+            .map(|i| query_hashes[*i])
+            .collect();
 
         // We have our random hashes, now we need to check which references
         // they match against and increment their counts.
 
-        let mut map: HashMap<&str, usize> = HashMap::new();
+        let mut map: FxHashMap<&str, usize> =
+            FxHashMap::with_capacity_and_hasher(10_000, FxBuildHasher);
 
         for random_hash in random_hashes {
             match reverse_index.get(&random_hash) {
