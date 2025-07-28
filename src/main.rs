@@ -5,6 +5,7 @@ mod utils;
 
 use bio::io::fasta::Reader;
 use clap::Parser;
+use dashmap::mapref::one::Ref;
 use index::build_reverse_index;
 use log::info;
 use simple_logger::SimpleLogger;
@@ -58,6 +59,6 @@ fn main() {
     // For writing results to file.
     let mut writer = BufWriter::new(File::create(&args.outfile).unwrap());
 
-    info!("Classifying queries...");
-    classify_queries(&config, &reverse_index, query_reader, &mut writer);
+    // info!("Classifying queries...");
+    // classify_queries(&config, &reverse_index, query_reader, &mut writer);
 }
