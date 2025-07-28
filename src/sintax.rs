@@ -22,8 +22,7 @@ pub fn bootstrap_classify_query(
     reverse_index: &DashMap<u64, FixedBitSet, FxBuildHasher>,
     valid_records: &[Record],
     config: &Config,
-    writer: &Arc<Mutex<BufWriter<File>>>,
-) {
+) -> String {
     // For randomizing hashes.
     let mut rng: ThreadRng = rand::rng();
 
@@ -42,6 +41,8 @@ pub fn bootstrap_classify_query(
 
         // We have our random hashes, now we need to check which references
         // they match against (from the reverse index) and increment their counts.
+        // NOTE - we should probably do this in some other way, such as
+        // initializing an zero-array of num_references length.
         let mut map: FxHashMap<usize, usize> =
             FxHashMap::with_capacity_and_hasher(10_000, FxBuildHasher);
 
@@ -60,7 +61,8 @@ pub fn bootstrap_classify_query(
 
         // We need to sort HashMap by values (as vec)?
         // Then take <top_candidates> best ones and print
-        // For now, we take the best hit.
+        // For now, we take the best hit. We can probably
+        // use something better than a hashmap.
         match map.iter().max_by_key(|entry| entry.1) {
             Some((subject_id, subject_score)) => {
                 let result_s = format!(
@@ -74,13 +76,9 @@ pub fn bootstrap_classify_query(
             }
             None => {}
         };
-
-        // Here we can write.
-
-        let output = iterations.join("\n");
-        let mut w = writer.lock().unwrap();
-        writeln!(w, "{}", output).unwrap()
     }
+    let bootstrap_result = iterations.join("\n");
+    return bootstrap_result;
 }
 
 pub fn classify_queries(
@@ -101,14 +99,16 @@ pub fn classify_queries(
             // This should be relatively fast if sequences are short.
             let mut query_vec: Vec<&u64> = query_hashes.iter().collect();
 
-            bootstrap_classify_query(
+            let bootstrap_result = bootstrap_classify_query(
                 &mut query_vec,
                 &r.id(),
                 &reverse_index,
                 &valid_records,
                 config,
-                &writer,
             );
+
+            let mut w = writer.lock().unwrap();
+            writeln!(w, "{}", bootstrap_result).unwrap()
         }
     });
 
