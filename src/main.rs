@@ -5,9 +5,9 @@ mod utils;
 
 use bio::io::fasta::Reader;
 use clap::Parser;
-use dashmap::mapref::one::Ref;
 use index::build_reverse_index;
 use log::info;
+use rayon::{ThreadPoolBuilder, prelude::*};
 use simple_logger::SimpleLogger;
 use sintax::classify_queries;
 use std::fs::File;
@@ -32,6 +32,9 @@ struct Args {
 
     #[arg(short, long)]
     outfile: PathBuf,
+
+    #[arg(short, long)]
+    threads: usize,
 }
 
 /// Building the reverse index still takes too long. An
@@ -43,6 +46,11 @@ fn main() {
 
     let args = Args::parse();
 
+    ThreadPoolBuilder::new()
+        .num_threads(args.threads)
+        .build_global()
+        .unwrap();
+
     // Setup some config stuff.
     let config = Config::default();
 
@@ -51,7 +59,7 @@ fn main() {
 
     // Build reverse index for entire database.
     info!("Building reverse index...");
-    let reverse_index = build_reverse_index(reference_reader, &config);
+    let (reverse_index, valid_records) = build_reverse_index(reference_reader, &config);
 
     // Read query fasta.
     let query_reader: Reader<BufReader<File>> = fasta_reader(&args.query);
@@ -59,6 +67,12 @@ fn main() {
     // For writing results to file.
     let mut writer = BufWriter::new(File::create(&args.outfile).unwrap());
 
-    // info!("Classifying queries...");
-    // classify_queries(&config, &reverse_index, query_reader, &mut writer);
+    info!("Classifying queries...");
+    classify_queries(
+        &config,
+        &reverse_index,
+        valid_records.as_slice(),
+        query_reader,
+        &mut writer,
+    );
 }
