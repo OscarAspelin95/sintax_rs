@@ -7,12 +7,13 @@ use bio::io::fasta::Reader;
 use clap::Parser;
 use index::build_reverse_index;
 use log::info;
-use rayon::{ThreadPoolBuilder, prelude::*};
+use rayon::ThreadPoolBuilder;
 use simple_logger::SimpleLogger;
 use sintax::classify_queries;
 use std::fs::File;
 use std::io::{BufReader, BufWriter};
 use std::path::PathBuf;
+use std::sync::{Arc, Mutex};
 use utils::Config;
 
 fn fasta_reader(f: &PathBuf) -> Reader<BufReader<File>> {
@@ -65,7 +66,9 @@ fn main() {
     let query_reader: Reader<BufReader<File>> = fasta_reader(&args.query);
 
     // For writing results to file.
-    let mut writer = BufWriter::new(File::create(&args.outfile).unwrap());
+    let writer = Arc::new(Mutex::new(BufWriter::new(
+        File::create(&args.outfile).unwrap(),
+    )));
 
     info!("Classifying queries...");
     classify_queries(
@@ -73,6 +76,6 @@ fn main() {
         &reverse_index,
         valid_records.as_slice(),
         query_reader,
-        &mut writer,
+        &writer,
     );
 }
