@@ -4,11 +4,13 @@ use bio::io::fasta::{Reader, Record};
 
 use dashmap::DashMap;
 use fixedbitset::FixedBitSet;
+use indicatif::{ProgressBar, ProgressStyle};
 use log::*;
 use rayon::prelude::*;
 use rustc_hash::FxBuildHasher;
 use std::fs::File;
 use std::io::BufReader;
+use std::time::Duration;
 
 pub fn build_reverse_index(
     reference_reader: Reader<BufReader<File>>,
@@ -27,6 +29,10 @@ pub fn build_reverse_index(
 
     // For now, just use normal iterator
     info!("Creating index...");
+    let spinner = ProgressBar::new_spinner();
+    spinner.enable_steady_tick(Duration::from_millis(200));
+    spinner.set_style(ProgressStyle::with_template("{spinner:.blue} [{elapsed_precise}]").unwrap());
+
     valid_records.par_iter().enumerate().for_each(|(i, r)| {
         let hashes = kmerize(config, &r.seq());
 
@@ -40,6 +46,8 @@ pub fn build_reverse_index(
                 });
         });
     });
+
+    spinner.finish();
 
     return (map, valid_records);
 }
