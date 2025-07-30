@@ -34,14 +34,10 @@ struct Args {
     #[arg(short, long)]
     outfile: PathBuf,
 
-    #[arg(short, long)]
+    #[arg(short, long, default_value_t = 8)]
     threads: usize,
 }
 
-/// Building the reverse index still takes too long. An
-/// alternative is to use needletail, might be faster.
-/// * Read reference once, store in HashMap with start_line_number/position as key.
-/// * Kmerize sequences, store hash as key, HashSet<&[u8]> as value (in parallel)?
 fn main() {
     SimpleLogger::new().init().unwrap();
 
