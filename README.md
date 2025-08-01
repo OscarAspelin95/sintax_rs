@@ -30,3 +30,7 @@ Optional arguments:
 <pre>
 <b>--threads</b> [8] - Num threads to use.
 </pre>
+
+
+Parse the results with the <em>parse_sintax_tsv.py</em> script. NOTE - the script assumes that the db fasta ids have the following structure:<br>
+`><accession>;tax=k:<kingdom>,p:<phylum>,c:<class>,o:<order>,f:<family>,g:<genus>,s:<species>_<accession>;`
