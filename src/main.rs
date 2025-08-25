@@ -7,7 +7,6 @@ mod utils;
 use crate::classifier::sintax_classify;
 use args::Args;
 use clap::Parser;
-use utils::Config;
 
 use rayon::ThreadPoolBuilder;
 use simple_logger::SimpleLogger;
@@ -22,8 +21,5 @@ fn main() {
         .build_global()
         .unwrap();
 
-    // Setup some config stuff.
-    let config = Config::default();
-
-    sintax_classify(&args.subject, &args.query, &config, &args.outfile).unwrap();
+    sintax_classify(args).unwrap();
 }

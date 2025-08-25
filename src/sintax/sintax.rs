@@ -8,7 +8,7 @@ use indicatif::ProgressBar;
 use indicatif::ProgressStyle;
 use rand::prelude::*;
 use rayon::prelude::*;
-use rustc_hash::{FxBuildHasher, FxHashMap};
+use rustc_hash::FxBuildHasher;
 use std::collections::HashSet;
 use std::fs::File;
 use std::io::BufWriter;
