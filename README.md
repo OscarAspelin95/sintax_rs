@@ -14,8 +14,10 @@ At the moment, the following parameters are hard-coded in *utils.rs* but will be
 
 ## Todo
 - [ ] Reduce runtime for classification step.
-- [ ] Fix argument parsing for config.
+- [x] Fix argument parsing for config.
 - [ ] Replace python script with Rust.
+- [ ] Add single thread version of reverse index build.
+- [ ] Allow reusing already build reverse indexes.
 
 ## Requirements
 - Linux OS (Ubuntu 24.04.2)
@@ -33,7 +35,7 @@ Run with:<br>
 
 Optional arguments:
 <pre>
-<b>--threads</b> [8] - Num threads to use.
+<b>--threads</b> [0] - Num threads to use. By default, uses Rayons built in preset.
 </pre>
 
 

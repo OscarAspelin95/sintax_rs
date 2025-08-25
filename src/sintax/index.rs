@@ -13,11 +13,11 @@ use std::io::BufReader;
 use std::time::Duration;
 
 pub fn build_reverse_index(
-    reference_reader: Reader<BufReader<File>>,
+    database_reader: Reader<BufReader<File>>,
     config: &Config,
 ) -> (DashMap<u64, FixedBitSet, FxBuildHasher>, Vec<Record>) {
     info!("Loading sequences...");
-    let valid_records: Vec<Record> = reference_reader
+    let valid_records: Vec<Record> = database_reader
         .records()
         .filter_map(|record| record.ok())
         .collect();
