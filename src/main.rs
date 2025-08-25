@@ -1,42 +1,16 @@
-mod index;
-mod kmers;
+mod args;
+mod classifier;
+mod errors;
 mod sintax;
 mod utils;
 
-use bio::io::fasta::Reader;
+use crate::classifier::sintax_classify;
+use args::Args;
 use clap::Parser;
-use index::build_reverse_index;
-use log::info;
-use rayon::ThreadPoolBuilder;
-use simple_logger::SimpleLogger;
-use sintax::classify_queries;
-use std::fs::File;
-use std::io::{BufReader, BufWriter};
-use std::path::PathBuf;
-use std::sync::{Arc, Mutex};
 use utils::Config;
 
-fn fasta_reader(f: &PathBuf) -> Reader<BufReader<File>> {
-    assert!(f.is_file());
-
-    let reader = Reader::from_file(f).unwrap();
-    return reader;
-}
-
-#[derive(Parser, Debug)]
-struct Args {
-    #[arg(short, long)]
-    query: PathBuf,
-
-    #[arg(short, long)]
-    subject: PathBuf,
-
-    #[arg(short, long)]
-    outfile: PathBuf,
-
-    #[arg(short, long, default_value_t = 8)]
-    threads: usize,
-}
+use rayon::ThreadPoolBuilder;
+use simple_logger::SimpleLogger;
 
 fn main() {
     SimpleLogger::new().init().unwrap();
@@ -51,27 +25,5 @@ fn main() {
     // Setup some config stuff.
     let config = Config::default();
 
-    // Read reference fasta.
-    let reference_reader: Reader<BufReader<File>> = fasta_reader(&args.subject);
-
-    // Build reverse index for entire database.
-    info!("Building reverse index...");
-    let (reverse_index, valid_records) = build_reverse_index(reference_reader, &config);
-
-    // Read query fasta.
-    let query_reader: Reader<BufReader<File>> = fasta_reader(&args.query);
-
-    // For writing results to file.
-    let writer = Arc::new(Mutex::new(BufWriter::new(
-        File::create(&args.outfile).unwrap(),
-    )));
-
-    info!("Classifying queries...");
-    classify_queries(
-        &config,
-        &reverse_index,
-        valid_records.as_slice(),
-        query_reader,
-        &writer,
-    );
+    sintax_classify(&args.subject, &args.query, &config, &args.outfile).unwrap();
 }

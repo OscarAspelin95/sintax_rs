@@ -1,4 +1,4 @@
-use crate::kmers::kmerize;
+use crate::sintax::kmerize;
 use crate::utils::Config;
 use bio::io::fasta::{Reader, Record};
 
