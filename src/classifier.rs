@@ -34,7 +34,7 @@ pub fn sintax_classify(
         &reverse_index,
         valid_records.as_slice(),
         query_reader,
-        &writer,
+        writer,
     );
 
     Ok(())
