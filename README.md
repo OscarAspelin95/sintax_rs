@@ -12,6 +12,11 @@ At the moment, the following parameters are hard-coded in *utils.rs* but will be
 <b>--ds_factor</b> [1] - MinFracHash downsampling factor.
 </pre>
 
+## Todo
+- [ ] Reduce runtime for classification step.
+- [ ] Fix argument parsing for config.
+- [ ] Replace python script with Rust.
+
 ## Requirements
 - Linux OS (Ubuntu 24.04.2)
 - Rust >= 1.88.0
