@@ -2944,6 +2944,7 @@ dependencies = [
  "rustc-hash",
  "samply",
  "simple_logger",
+ "thiserror 2.0.12",
 ]
 
 [[package]]

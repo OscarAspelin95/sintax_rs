@@ -1,4 +1,4 @@
-use crate::kmers::kmerize;
+use crate::sintax::kmerize;
 use crate::utils::Config;
 use bio::io::fasta::Reader;
 use bio::io::fasta::Record;
@@ -16,7 +16,7 @@ use std::io::{BufReader, Write};
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
-pub fn bootstrap_classify_query(
+fn bootstrap_classify_query(
     query_hashes: &mut Vec<&u64>,
     query_name: &str,
     reverse_index: &DashMap<u64, FixedBitSet, FxBuildHasher>,
