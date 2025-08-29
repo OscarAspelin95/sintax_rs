@@ -1,5 +1,6 @@
 use crate::sintax::kmerize;
 use crate::utils::Config;
+use anyhow::Result;
 use bio::io::fasta::Reader;
 use bio::io::fasta::Record;
 use dashmap::DashMap;
@@ -64,10 +65,12 @@ pub fn classify_queries(
     valid_records: &[Record],
     query_reader: Reader<BufReader<File>>,
     writer: Arc<Mutex<BufWriter<File>>>,
-) {
+) -> Result<()> {
     let spinner: ProgressBar = ProgressBar::new_spinner();
     spinner.enable_steady_tick(Duration::from_millis(200));
-    spinner.set_style(ProgressStyle::with_template("{spinner:.blue} [{elapsed_precise}]").unwrap());
+    spinner.set_style(ProgressStyle::with_template(
+        "{spinner:.blue} [{elapsed_precise}]",
+    )?);
 
     query_reader.records().par_bridge().for_each(|record| {
         if let Ok(r) = record {
@@ -84,13 +87,15 @@ pub fn classify_queries(
                 config,
             );
 
-            let mut w = writer.lock().unwrap();
+            let mut w = writer.lock().expect("Mutex lock fail.");
             writeln!(w, "{}", bootstrap_result).unwrap()
         }
     });
 
-    let mut writer = Arc::into_inner(writer).unwrap().into_inner().unwrap();
-    writer.flush().unwrap();
+    let mut writer = Arc::into_inner(writer).unwrap().into_inner()?;
+    writer.flush()?;
 
     spinner.finish();
+
+    Ok(())
 }

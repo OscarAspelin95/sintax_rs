@@ -1,5 +1,4 @@
 use crate::args::Args;
-use crate::errors::AppError;
 use crate::sintax::{build_reverse_index, classify_queries};
 use crate::utils::{Config, fasta_reader};
 
@@ -9,7 +8,9 @@ use std::fs::File;
 use std::io::{BufReader, BufWriter};
 use std::sync::{Arc, Mutex};
 
-pub fn sintax_classify(args: Args) -> Result<(), AppError> {
+use anyhow::Result;
+
+pub fn sintax_classify(args: Args) -> Result<()> {
     // Read reference fasta.
     let database_reader: Reader<BufReader<File>> = fasta_reader(&args.database)?;
 
@@ -17,9 +18,7 @@ pub fn sintax_classify(args: Args) -> Result<(), AppError> {
     let query_reader: Reader<BufReader<File>> = fasta_reader(&args.query)?;
 
     // For writing results to file.
-    let writer = Arc::new(Mutex::new(BufWriter::new(
-        File::create(&args.outfile).unwrap(),
-    )));
+    let writer = Arc::new(Mutex::new(BufWriter::new(File::create(&args.outfile)?)));
 
     let config = Config::from(args);
 
@@ -34,7 +33,7 @@ pub fn sintax_classify(args: Args) -> Result<(), AppError> {
         valid_records.as_slice(),
         query_reader,
         writer,
-    );
+    )?;
 
     Ok(())
 }
