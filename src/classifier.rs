@@ -1,38 +1,50 @@
-use crate::args::Args;
-use crate::sintax::{build_reverse_index, classify_queries};
-use crate::utils::{Config, fasta_reader};
-
-use bio::io::fasta::Reader;
-use log::info;
-use std::fs::File;
-use std::io::{BufReader, BufWriter};
-use std::sync::{Arc, Mutex};
+use crate::serialization::load_db_from_file;
+use crate::sintax::classify_queries;
+use crate::utils::fasta_reader;
 
 use anyhow::Result;
+use bio::io::fasta::Reader;
+use log::info;
+use rayon::ThreadPoolBuilder;
 
-pub fn sintax_classify(args: Args) -> Result<()> {
-    // Read reference fasta.
-    let database_reader: Reader<BufReader<File>> = fasta_reader(&args.database)?;
+use std::fs::File;
+use std::io::{BufReader, BufWriter};
+use std::path::PathBuf;
+use std::sync::{Arc, Mutex};
+
+pub fn sintax_classify(
+    fasta: &PathBuf,
+    database: &PathBuf,
+    bootstraps: u16,
+    num_query_hashes: u16,
+    kmer_size: u16,
+    downsampling_factor: u64,
+    outfile: &PathBuf,
+    threads: usize,
+) -> Result<()> {
+    ThreadPoolBuilder::new()
+        .num_threads(threads)
+        .build_global()?;
 
     // Read query fasta.
-    let query_reader: Reader<BufReader<File>> = fasta_reader(&args.query)?;
+    let query_reader: Reader<BufReader<File>> = fasta_reader(fasta)?;
 
     // For writing results to file.
-    let writer = Arc::new(Mutex::new(BufWriter::new(File::create(&args.outfile)?)));
+    let writer = Arc::new(Mutex::new(BufWriter::new(File::create(outfile)?)));
 
-    let config = Config::from(args);
-
-    // Build reverse index for entire database.
-    info!("Building reverse index...");
-    let (reverse_index, valid_records) = build_reverse_index(database_reader, &config);
+    info!("Loading database...");
+    let (reverse_index, record_ids) = load_db_from_file(database);
 
     info!("Classifying queries...");
     classify_queries(
-        &config,
         &reverse_index,
-        valid_records.as_slice(),
+        record_ids.as_slice(),
         query_reader,
         writer,
+        bootstraps,
+        num_query_hashes,
+        kmer_size as usize,
+        downsampling_factor,
     )?;
 
     Ok(())

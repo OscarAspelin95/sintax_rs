@@ -1,4 +1,3 @@
-use crate::utils::Config;
 use std::collections::HashSet;
 
 pub const LOOKUP: [u8; 256] = [
@@ -31,22 +30,22 @@ pub fn mm_hash64(kmer: u64) -> u64 {
 /// k <= 7 -> use u16.
 /// k <= 15 -> use u32.
 /// k <= 31 => use u64.
-pub fn kmerize(config: &Config, nt_string: &[u8]) -> HashSet<u64> {
-    assert!(config.kmer_size <= nt_string.len());
+pub fn kmerize(kmer_size: usize, downsampling_factor: u64, nt_string: &[u8]) -> HashSet<u64> {
+    assert!(kmer_size <= nt_string.len());
 
     // Forward related kmer stuff
     let mut kmer_forward: u64 = 0;
 
-    let nbits = config.kmer_size << 1;
+    let nbits = kmer_size << 1;
     let mask: u64 = (1 << nbits) - 1;
 
     // Reverse related kmer stuff.
     let mut kmer_reverse: u64 = 0;
-    let shift = ((config.kmer_size - 1) * 2) as u64;
+    let shift = ((kmer_size - 1) * 2) as u64;
 
     // Storage.
     let mut canonical_hashes: HashSet<u64> =
-        HashSet::with_capacity(nt_string.len() - config.kmer_size + 1);
+        HashSet::with_capacity(nt_string.len() - kmer_size + 1);
 
     let mut valid_kmer_index: usize = 0;
 
@@ -66,13 +65,13 @@ pub fn kmerize(config: &Config, nt_string: &[u8]) -> HashSet<u64> {
         let nt_rev = 3 - nt;
         kmer_reverse = kmer_reverse >> 2 | nt_rev << shift;
 
-        if valid_kmer_index >= config.kmer_size - 1 {
+        if valid_kmer_index >= kmer_size - 1 {
             let canonical = match kmer_forward < kmer_reverse {
                 true => kmer_forward,
                 false => kmer_reverse,
             };
             // MinFracHash
-            if canonical <= u64::MAX / config.ds_factor {
+            if canonical <= u64::MAX / downsampling_factor {
                 canonical_hashes.insert(mm_hash64(canonical));
             }
         }

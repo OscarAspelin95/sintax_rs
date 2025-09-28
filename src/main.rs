@@ -1,14 +1,17 @@
 mod args;
 mod classifier;
+mod database;
 mod errors;
+mod serialization;
 mod sintax;
 mod utils;
 
 use crate::classifier::sintax_classify;
-use args::Args;
-use clap::Parser;
+use crate::database::build_database;
 
-use rayon::ThreadPoolBuilder;
+use args::Args;
+use args::SubCommand::{Classify, Database};
+use clap::Parser;
 use simple_logger::SimpleLogger;
 
 fn main() {
@@ -16,10 +19,32 @@ fn main() {
 
     let args = Args::parse();
 
-    ThreadPoolBuilder::new()
-        .num_threads(args.threads)
-        .build_global()
-        .unwrap();
-
-    sintax_classify(args).unwrap();
+    match args.command {
+        Database {
+            fasta,
+            outfile,
+            kmer_size,
+            downsampling_factor,
+        } => build_database(&fasta, &outfile, kmer_size, downsampling_factor).unwrap(),
+        Classify {
+            fasta,
+            database,
+            bootstraps,
+            query_hashes,
+            kmer_size,
+            downsampling_factor,
+            outfile,
+            threads,
+        } => sintax_classify(
+            &fasta,
+            &database,
+            bootstraps,
+            query_hashes,
+            kmer_size,
+            downsampling_factor,
+            &outfile,
+            threads,
+        )
+        .unwrap(),
+    }
 }
