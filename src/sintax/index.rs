@@ -1,9 +1,9 @@
+use crate::sintax::KmerBitSet;
 use crate::sintax::kmerize;
 use crate::utils::Config;
+use anyhow::Result;
 use bio::io::fasta::{Reader, Record};
-
 use dashmap::DashMap;
-use fixedbitset::FixedBitSet;
 use indicatif::{ProgressBar, ProgressStyle};
 use log::*;
 use rayon::prelude::*;
@@ -15,7 +15,7 @@ use std::time::Duration;
 pub fn build_reverse_index(
     database_reader: Reader<BufReader<File>>,
     config: &Config,
-) -> (DashMap<u64, FixedBitSet, FxBuildHasher>, Vec<Record>) {
+) -> Result<(DashMap<u64, KmerBitSet, FxBuildHasher>, Vec<Record>)> {
     info!("Loading sequences...");
     let valid_records: Vec<Record> = database_reader
         .records()
@@ -38,10 +38,10 @@ pub fn build_reverse_index(
 
         hashes.iter().for_each(|h| {
             map.entry(*h)
-                .and_modify(|bitset: &mut FixedBitSet| bitset.set(i, true))
+                .and_modify(|bitset: &mut KmerBitSet| unsafe { bitset.set_unchecked(i) })
                 .or_insert_with(|| {
-                    let mut bitset = FixedBitSet::with_capacity(num_records);
-                    bitset.set(i, true);
+                    let mut bitset = KmerBitSet::new(num_records);
+                    unsafe { bitset.set_unchecked(i) };
                     bitset
                 });
         });
@@ -49,5 +49,5 @@ pub fn build_reverse_index(
 
     spinner.finish();
 
-    return (map, valid_records);
+    return Ok((map, valid_records));
 }
