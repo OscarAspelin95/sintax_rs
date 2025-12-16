@@ -1,11 +1,10 @@
-use crate::sintax::KmerBitSet;
 use crate::sintax::kmerize;
 use crate::utils::Config;
-
 use anyhow::Result;
 use bio::io::fasta::Reader;
 use bio::io::fasta::Record;
 use dashmap::DashMap;
+use fixedbitset::FixedBitSet;
 use indicatif::ProgressBar;
 use indicatif::ProgressStyle;
 use rand::prelude::*;
@@ -21,7 +20,7 @@ use std::time::Duration;
 fn bootstrap_classify_query(
     query_hashes: &mut Vec<&u64>,
     query_name: &str,
-    reverse_index: &DashMap<u64, KmerBitSet, FxBuildHasher>,
+    reverse_index: &DashMap<u64, FixedBitSet, FxBuildHasher>,
     valid_records: &[Record],
     config: &Config,
 ) -> String {
@@ -38,7 +37,7 @@ fn bootstrap_classify_query(
             let random_index = rng.random_range(0..query_hashes.len());
 
             if let Some(bitset) = reverse_index.get(query_hashes[random_index]) {
-                for ref_index in bitset.ones_by_iterator() {
+                for ref_index in bitset.ones() {
                     counts[ref_index] += 1;
                 }
             }
@@ -62,7 +61,7 @@ fn bootstrap_classify_query(
 
 pub fn classify_queries(
     config: &Config,
-    reverse_index: &DashMap<u64, KmerBitSet, FxBuildHasher>,
+    reverse_index: &DashMap<u64, FixedBitSet, FxBuildHasher>,
     valid_records: &[Record],
     query_reader: Reader<BufReader<File>>,
     writer: Arc<Mutex<BufWriter<File>>>,
