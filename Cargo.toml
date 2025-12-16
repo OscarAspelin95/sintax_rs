@@ -6,7 +6,7 @@ edition = "2024"
 [dependencies]
 rayon = { version = "1.10.0" }
 rstest = { version = "0.26.1" }
-clap = { version = "4.5.39", features = ["derive"] }
+clap = { version = "4.5.53", features = ["derive"] }
 log = { version = "0.4.27" }
 simple_logger = { version = "5.0.0" }
 bio = { version = "2.3.0" }
