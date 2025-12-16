@@ -24,10 +24,9 @@ pub fn build_reverse_index(
 
     let num_records = valid_records.len();
 
-    // We'll create the index in parallel by using DashMap.
+    // We don't know the exact required capacity (num hashes in total) so we estimate this with num_records.
     let map = DashMap::with_capacity_and_hasher(num_records, FxBuildHasher);
 
-    // For now, just use normal iterator
     info!("Creating index...");
     let spinner = ProgressBar::new_spinner();
     spinner.enable_steady_tick(Duration::from_millis(200));

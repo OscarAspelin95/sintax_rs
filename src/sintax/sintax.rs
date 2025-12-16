@@ -24,9 +24,7 @@ fn bootstrap_classify_query(
     valid_records: &[Record],
     config: &Config,
 ) -> String {
-    // For randomizing hashes.
     let mut rng: ThreadRng = rand::rng();
-
     let mut iterations: Vec<String> = Vec::with_capacity(config.num_bootstraps);
 
     // Bootstrap iterations.
@@ -76,7 +74,7 @@ pub fn classify_queries(
         if let Ok(r) = record {
             let query_hashes: HashSet<u64> = kmerize(config, r.seq());
 
-            // This should be relatively fast if sequences are short.
+            // TODO - can we do better?
             let mut query_vec: Vec<&u64> = query_hashes.iter().collect();
 
             let bootstrap_result = bootstrap_classify_query(

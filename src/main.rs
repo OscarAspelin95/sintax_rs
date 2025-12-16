@@ -8,18 +8,26 @@ use crate::classifier::sintax_classify;
 use args::Args;
 use clap::Parser;
 
+use log::error;
 use rayon::ThreadPoolBuilder;
 use simple_logger::SimpleLogger;
 
 fn main() {
-    SimpleLogger::new().init().unwrap();
+    SimpleLogger::new()
+        .init()
+        .expect("Failed to initialize logger");
 
     let args = Args::parse();
 
     ThreadPoolBuilder::new()
         .num_threads(args.threads)
         .build_global()
-        .unwrap();
+        .expect("Failed to build rayon thread pool");
 
-    sintax_classify(args).unwrap();
+    let result = sintax_classify(args);
+
+    if result.is_err() {
+        error!("Error: {:?}", result.err());
+        std::process::exit(1);
+    }
 }
