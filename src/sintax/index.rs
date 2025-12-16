@@ -34,7 +34,7 @@ pub fn build_reverse_index(
     spinner.set_style(ProgressStyle::with_template("{spinner:.blue} [{elapsed_precise}]").unwrap());
 
     valid_records.par_iter().enumerate().for_each(|(i, r)| {
-        let hashes = kmerize(config, &r.seq());
+        let hashes = kmerize(config, r.seq());
 
         hashes.iter().for_each(|h| {
             map.entry(*h)
@@ -49,5 +49,5 @@ pub fn build_reverse_index(
 
     spinner.finish();
 
-    return (map, valid_records);
+    (map, valid_records)
 }

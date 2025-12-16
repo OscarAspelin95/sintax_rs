@@ -18,7 +18,7 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
 fn bootstrap_classify_query(
-    query_hashes: &mut Vec<&u64>,
+    query_hashes: &mut [&u64],
     query_name: &str,
     reverse_index: &DashMap<u64, FixedBitSet, FxBuildHasher>,
     valid_records: &[Record],
@@ -55,8 +55,8 @@ fn bootstrap_classify_query(
             iterations.push(result_s);
         }
     }
-    let bootstrap_result = iterations.join("\n");
-    return bootstrap_result;
+
+    iterations.join("\n")
 }
 
 pub fn classify_queries(
@@ -74,16 +74,16 @@ pub fn classify_queries(
 
     query_reader.records().par_bridge().for_each(|record| {
         if let Ok(r) = record {
-            let query_hashes: HashSet<u64> = kmerize(&config, &r.seq());
+            let query_hashes: HashSet<u64> = kmerize(config, r.seq());
 
             // This should be relatively fast if sequences are short.
             let mut query_vec: Vec<&u64> = query_hashes.iter().collect();
 
             let bootstrap_result = bootstrap_classify_query(
                 &mut query_vec,
-                &r.id(),
-                &reverse_index,
-                &valid_records,
+                r.id(),
+                reverse_index,
+                valid_records,
                 config,
             );
 
