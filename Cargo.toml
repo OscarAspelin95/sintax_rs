@@ -16,6 +16,6 @@ fixedbitset = { version = "0.5.7" }
 dashmap = { version = "6.1.0" }
 samply = { version = "0.13.1" }
 rustc-hash = { version = "2.1.1" }
-indicatif = { version = "0.18.0" }
+indicatif = { version = "0.18.3" }
 thiserror = { version = "2.0.17" }
 anyhow = { version = "1.0.99" }
