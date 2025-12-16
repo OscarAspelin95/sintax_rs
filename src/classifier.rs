@@ -24,7 +24,7 @@ pub fn sintax_classify(args: Args) -> Result<()> {
 
     // Build reverse index for entire database.
     info!("Building reverse index...");
-    let (reverse_index, valid_records) = build_reverse_index(database_reader, &config)?;
+    let (reverse_index, valid_records) = build_reverse_index(database_reader, &config);
 
     info!("Classifying queries...");
     classify_queries(

@@ -14,12 +14,12 @@ pub struct Config {
 
 impl From<Args> for Config {
     fn from(args: Args) -> Self {
-        return Self {
+        Self {
             kmer_size: args.kmer_size as usize,
             num_bootstraps: args.bootstraps as usize,
             num_query_hashes: args.query_hashes as usize,
-            ds_factor: args.downsampling_factor as u64,
-        };
+            ds_factor: args.downsampling_factor,
+        }
     }
 }
 
@@ -29,5 +29,5 @@ pub fn fasta_reader(f: &PathBuf) -> Result<Reader<BufReader<File>>, AppError> {
     }
 
     let reader = Reader::from_file(f).map_err(|_| AppError::FastaReadError)?;
-    return Ok(reader);
+    Ok(reader)
 }

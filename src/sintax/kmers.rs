@@ -80,5 +80,10 @@ pub fn kmerize(config: &Config, nt_string: &[u8]) -> HashSet<u64> {
         valid_kmer_index += 1;
     });
 
-    return canonical_hashes;
+    canonical_hashes
+}
+
+#[test]
+fn it_works() {
+    assert_eq!(1, 1);
 }

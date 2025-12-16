@@ -1,11 +1,10 @@
-use crate::sintax::KmerBitSet;
 use crate::sintax::kmerize;
 use crate::utils::Config;
-
 use anyhow::Result;
 use bio::io::fasta::Reader;
 use bio::io::fasta::Record;
 use dashmap::DashMap;
+use fixedbitset::FixedBitSet;
 use indicatif::ProgressBar;
 use indicatif::ProgressStyle;
 use rand::prelude::*;
@@ -19,9 +18,9 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
 fn bootstrap_classify_query(
-    query_hashes: &mut Vec<&u64>,
+    query_hashes: &mut [&u64],
     query_name: &str,
-    reverse_index: &DashMap<u64, KmerBitSet, FxBuildHasher>,
+    reverse_index: &DashMap<u64, FixedBitSet, FxBuildHasher>,
     valid_records: &[Record],
     config: &Config,
 ) -> String {
@@ -38,7 +37,7 @@ fn bootstrap_classify_query(
             let random_index = rng.random_range(0..query_hashes.len());
 
             if let Some(bitset) = reverse_index.get(query_hashes[random_index]) {
-                for ref_index in bitset.ones_by_iterator() {
+                for ref_index in bitset.ones() {
                     counts[ref_index] += 1;
                 }
             }
@@ -56,13 +55,13 @@ fn bootstrap_classify_query(
             iterations.push(result_s);
         }
     }
-    let bootstrap_result = iterations.join("\n");
-    return bootstrap_result;
+
+    iterations.join("\n")
 }
 
 pub fn classify_queries(
     config: &Config,
-    reverse_index: &DashMap<u64, KmerBitSet, FxBuildHasher>,
+    reverse_index: &DashMap<u64, FixedBitSet, FxBuildHasher>,
     valid_records: &[Record],
     query_reader: Reader<BufReader<File>>,
     writer: Arc<Mutex<BufWriter<File>>>,
@@ -75,16 +74,16 @@ pub fn classify_queries(
 
     query_reader.records().par_bridge().for_each(|record| {
         if let Ok(r) = record {
-            let query_hashes: HashSet<u64> = kmerize(&config, &r.seq());
+            let query_hashes: HashSet<u64> = kmerize(config, r.seq());
 
             // This should be relatively fast if sequences are short.
             let mut query_vec: Vec<&u64> = query_hashes.iter().collect();
 
             let bootstrap_result = bootstrap_classify_query(
                 &mut query_vec,
-                &r.id(),
-                &reverse_index,
-                &valid_records,
+                r.id(),
+                reverse_index,
+                valid_records,
                 config,
             );
 
