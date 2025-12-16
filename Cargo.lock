@@ -218,7 +218,7 @@ dependencies = [
  "statrs",
  "strum",
  "strum_macros",
- "thiserror 2.0.12",
+ "thiserror 2.0.17",
  "triple_accel",
  "vec_map",
 ]
@@ -1507,7 +1507,7 @@ dependencies = [
  "memchr",
  "prost 0.13.5",
  "prost-derive 0.13.5",
- "thiserror 2.0.12",
+ "thiserror 2.0.17",
 ]
 
 [[package]]
@@ -1519,7 +1519,7 @@ dependencies = [
  "bitflags",
  "byteorder",
  "memchr",
- "thiserror 2.0.12",
+ "thiserror 2.0.17",
 ]
 
 [[package]]
@@ -1593,7 +1593,7 @@ version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bb4bdc8b0ce69932332cf76d24af69c3a155242af95c226b2ab6c2e371ed1149"
 dependencies = [
- "thiserror 2.0.12",
+ "thiserror 2.0.17",
  "zerocopy",
  "zerocopy-derive",
 ]
@@ -1960,7 +1960,7 @@ dependencies = [
  "maybe-owned",
  "pdb2",
  "range-collections",
- "thiserror 2.0.12",
+ "thiserror 2.0.17",
 ]
 
 [[package]]
@@ -1982,7 +1982,7 @@ checksum = "500fa4cdeacd98997c5865e3d0d1cb8fe7e9d7d75ecc775e07989a433a9a9a59"
 dependencies = [
  "arrayvec",
  "bitflags",
- "thiserror 2.0.12",
+ "thiserror 2.0.17",
  "zerocopy",
  "zerocopy-derive",
 ]
@@ -2169,7 +2169,7 @@ dependencies = [
  "rustc-hash",
  "rustls",
  "socket2",
- "thiserror 2.0.12",
+ "thiserror 2.0.17",
  "tokio",
  "tracing",
  "web-time",
@@ -2190,7 +2190,7 @@ dependencies = [
  "rustls",
  "rustls-pki-types",
  "slab",
- "thiserror 2.0.12",
+ "thiserror 2.0.17",
  "tinyvec",
  "tracing",
  "web-time",
@@ -2372,7 +2372,7 @@ checksum = "dd6f9d3d47bdd2ad6945c5015a226ec6155d0bcdfd8f7cd29f86b71f8de99d2b"
 dependencies = [
  "getrandom 0.2.16",
  "libredox",
- "thiserror 2.0.12",
+ "thiserror 2.0.17",
 ]
 
 [[package]]
@@ -2737,7 +2737,7 @@ dependencies = [
  "shlex",
  "sysctl",
  "tempfile",
- "thiserror 2.0.12",
+ "thiserror 2.0.17",
  "tokio",
  "tokio-util",
  "uname",
@@ -2758,7 +2758,7 @@ dependencies = [
  "serde",
  "serde_derive",
  "serde_json",
- "thiserror 2.0.12",
+ "thiserror 2.0.17",
  "yaxpeax-arch",
  "yaxpeax-arm",
  "yaxpeax-x86",
@@ -2803,7 +2803,7 @@ dependencies = [
  "rustc-demangle",
  "scala-native-demangle",
  "srcsrv",
- "thiserror 2.0.12",
+ "thiserror 2.0.17",
  "uuid",
  "yoke",
  "yoke-derive",
@@ -2944,7 +2944,7 @@ dependencies = [
  "rustc-hash",
  "samply",
  "simple_logger",
- "thiserror 2.0.12",
+ "thiserror 2.0.17",
 ]
 
 [[package]]
@@ -2976,7 +2976,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "85cd3e3828fb4dd5ba0e7091777edb6c3db3cd2d6fc10547b29b40f6949a29be"
 dependencies = [
  "memchr",
- "thiserror 2.0.12",
+ "thiserror 2.0.17",
 ]
 
 [[package]]
@@ -3048,7 +3048,7 @@ dependencies = [
  "http",
  "reqwest",
  "scopeguard",
- "thiserror 2.0.12",
+ "thiserror 2.0.17",
  "tokio",
 ]
 
@@ -3127,11 +3127,11 @@ dependencies = [
 
 [[package]]
 name = "thiserror"
-version = "2.0.12"
+version = "2.0.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "567b8a2dae586314f7be2a752ec7474332959c6460e02bde30d702a66d488708"
+checksum = "f63587ca0f12b72a0600bcba1d40081f830876000bb46dd2337a3051618f4fc8"
 dependencies = [
- "thiserror-impl 2.0.12",
+ "thiserror-impl 2.0.17",
 ]
 
 [[package]]
@@ -3147,9 +3147,9 @@ dependencies = [
 
 [[package]]
 name = "thiserror-impl"
-version = "2.0.12"
+version = "2.0.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7f7cf42b4507d8ea322120659672cf1b9dbb93f8f2d4ecfd6e51350ff5b17a1d"
+checksum = "3ff15c8ecd7de3849db632e14d18d2571fa09dfc5ed93479bc4485c7a517c913"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3656,7 +3656,7 @@ dependencies = [
  "samply-symbols",
  "scopeguard",
  "symsrv",
- "thiserror 2.0.12",
+ "thiserror 2.0.17",
  "tokio",
  "uuid",
  "yoke",
