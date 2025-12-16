@@ -1,4 +1,5 @@
 use crate::utils::Config;
+use rstest::rstest;
 use std::collections::HashSet;
 
 pub const LOOKUP: [u8; 256] = [
@@ -25,12 +26,6 @@ pub fn mm_hash64(kmer: u64) -> u64 {
     key
 }
 
-/// Here, we get the canonical kmers from a nucleotide string.
-/// However, we don't actually necessarily need a u64. Would be better
-/// to have it dependent on the kmer size to save memory:
-/// k <= 7 -> use u16.
-/// k <= 15 -> use u32.
-/// k <= 31 => use u64.
 pub fn kmerize(config: &Config, nt_string: &[u8]) -> HashSet<u64> {
     assert!(config.kmer_size <= nt_string.len());
 
@@ -83,7 +78,36 @@ pub fn kmerize(config: &Config, nt_string: &[u8]) -> HashSet<u64> {
     canonical_hashes
 }
 
-#[test]
-fn it_works() {
-    assert_eq!(1, 1);
+#[rstest]
+#[case(b"AAAAAAAA", 3, 1)]
+#[case(b"AAAAAAAC", 3, 2)]
+#[case(b"ATCGATCGATCG", 4, 3)]
+#[case(b"ATCNATCNATCN", 4, 0)]
+fn test_kmerize(#[case] seq: &[u8], #[case] kmer_size: usize, #[case] expected_num_hashes: usize) {
+    let config = Config {
+        kmer_size: kmer_size,
+        num_bootstraps: 1,
+        num_query_hashes: 1,
+        ds_factor: 1,
+    };
+
+    let result = kmerize(&config, seq);
+    assert_eq!(result.len(), expected_num_hashes);
+}
+
+#[rstest]
+#[case(b"AAAAAAAA", b"TTTTTTTT", 3)]
+#[case(b"AAAAAAAAAT", b"ATTTTTTTTT", 3)]
+fn test_kmerize_reverse(#[case] seq1: &[u8], #[case] seq2: &[u8], #[case] kmer_size: usize) {
+    let config = Config {
+        kmer_size: kmer_size,
+        num_bootstraps: 1,
+        num_query_hashes: 1,
+        ds_factor: 1,
+    };
+
+    let result1 = kmerize(&config, seq1);
+    let result2 = kmerize(&config, seq2);
+
+    assert_eq!(result1, result2);
 }
