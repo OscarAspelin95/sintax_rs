@@ -19,8 +19,8 @@ pub struct Args {
     #[arg(long, default_value_t = 15, value_parser = value_parser!(u16).range(7..31))]
     pub kmer_size: u16,
 
-    #[arg(long, default_value_t = 1, value_parser = value_parser!(u64).range(1..100))]
-    pub downsampling_factor: u64,
+    #[arg(long, default_value_t = 7, value_parser = value_parser!(u16).range(1..100))]
+    pub window_size: u16,
 
     #[arg(short, long)]
     pub outfile: PathBuf,

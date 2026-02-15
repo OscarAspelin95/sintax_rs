@@ -1,6 +1,6 @@
 use crate::sintax::kmerize;
 use crate::utils::Config;
-use anyhow::Result;
+use crate::errors::AppError;
 use bio::io::fasta::Reader;
 use bio::io::fasta::Record;
 use dashmap::DashMap;
@@ -65,7 +65,7 @@ pub fn classify_queries(
     valid_records: &[Record],
     query_reader: Reader<BufReader<File>>,
     writer: Arc<Mutex<BufWriter<File>>>,
-) -> Result<()> {
+) -> Result<(), AppError> {
     let spinner: ProgressBar = ProgressBar::new_spinner();
     spinner.enable_steady_tick(Duration::from_millis(200));
     spinner.set_style(ProgressStyle::with_template(
@@ -92,7 +92,10 @@ pub fn classify_queries(
         }
     });
 
-    let mut writer = Arc::into_inner(writer).unwrap().into_inner()?;
+    let mut writer = Arc::into_inner(writer)
+        .unwrap()
+        .into_inner()
+        .expect("Mutex poisoned");
     writer.flush()?;
 
     spinner.finish();

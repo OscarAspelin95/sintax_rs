@@ -1,4 +1,5 @@
 use crate::args::Args;
+use crate::errors::AppError;
 use crate::sintax::{build_reverse_index, classify_queries};
 use crate::utils::{Config, fasta_reader};
 
@@ -8,9 +9,17 @@ use std::fs::File;
 use std::io::{BufReader, BufWriter};
 use std::sync::{Arc, Mutex};
 
-use anyhow::Result;
+pub fn sintax_classify(args: Args) -> Result<(), AppError> {
+    // Canonical minimizers require k + w - 1 to be odd.
+    let kw = args.kmer_size as usize + args.window_size as usize - 1;
+    if kw % 2 == 0 {
+        return Err(AppError::InvalidParameter(format!(
+            "kmer_size + window_size - 1 must be odd for canonical minimizers (got {}). \
+             Try adjusting --kmer-size or --window-size by 1.",
+            kw
+        )));
+    }
 
-pub fn sintax_classify(args: Args) -> Result<()> {
     // Read reference fasta.
     let database_reader: Reader<BufReader<File>> = fasta_reader(&args.database)?;
 

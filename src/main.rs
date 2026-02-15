@@ -10,6 +10,7 @@ use clap::Parser;
 
 use rayon::ThreadPoolBuilder;
 use simple_logger::SimpleLogger;
+use std::process;
 
 fn main() {
     SimpleLogger::new().init().unwrap();
@@ -21,5 +22,8 @@ fn main() {
         .build_global()
         .unwrap();
 
-    sintax_classify(args).unwrap();
+    if let Err(e) = sintax_classify(args) {
+        eprintln!("Error: {e}");
+        process::exit(1);
+    }
 }
