@@ -1233,6 +1233,8 @@ checksum = "e320a6c5ad31d271ad523dcf3ad13e2767ad8b1cb8f047f75a8aeaf8da139da2"
 [[package]]
 name = "simd-minimizers"
 version = "2.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3d337c81bca2fc990b480ed2fe3421c66227e4ca427a9b9d7cfcfe97e9b4f986"
 dependencies = [
  "clap",
  "itertools",
