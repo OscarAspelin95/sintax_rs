@@ -1256,7 +1256,7 @@ dependencies = [
 
 [[package]]
 name = "sintax_rs"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "bio",
  "clap",
