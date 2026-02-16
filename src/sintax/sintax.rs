@@ -1,6 +1,6 @@
+use crate::errors::AppError;
 use crate::sintax::kmerize;
 use crate::utils::Config;
-use crate::errors::AppError;
 use bio::io::fasta::Reader;
 use bio::io::fasta::Record;
 use dashmap::DashMap;

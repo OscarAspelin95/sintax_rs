@@ -12,7 +12,7 @@ use std::sync::{Arc, Mutex};
 pub fn sintax_classify(args: Args) -> Result<(), AppError> {
     // Canonical minimizers require k + w - 1 to be odd.
     let kw = args.kmer_size as usize + args.window_size as usize - 1;
-    if kw % 2 == 0 {
+    if kw.is_multiple_of(2) {
         return Err(AppError::InvalidParameter(format!(
             "kmer_size + window_size - 1 must be odd for canonical minimizers (got {}). \
              Try adjusting --kmer-size or --window-size by 1.",
