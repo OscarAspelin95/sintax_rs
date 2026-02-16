@@ -9,6 +9,8 @@ env:
 jobs:
   test_format_lint:
     runs-on: ubuntu-latest
+    env:
+      RUSTFLAGS: "-C target-cpu=x86-64-v3"
 
     steps:
       - name: Checkout code
