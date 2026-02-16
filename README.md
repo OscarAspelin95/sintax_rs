@@ -6,7 +6,12 @@ Rust implementation of the SINTAX classifier using SIMD-accelerated canonical mi
 - Rust >= 1.88.0
 
 ## Installation
-Clone the repository or download the source code. Enter the sintax_rs directory and run:<br>
+
+### Pre-built Binaries
+Pre-built binaries are available from the [GitHub releases page](https://github.com/OscarAspelin95/sintax_rs/releases). Note that these binaries are **not optimized** for your specific CPU architecture.
+
+### Building from Source (Recommended)
+For best performance, compile from source with CPU-specific optimizations. Clone the repository or download the source code, enter the sintax_rs directory, and run:<br>
 `RUSTFLAGS="-C target-cpu=native" cargo build --release`
 
 The generated binary is available in `target/release/sintax_rs`.
