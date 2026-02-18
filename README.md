@@ -8,18 +8,18 @@ Rust implementation of the SINTAX classifier using SIMD-accelerated canonical mi
 ## Installation
 
 ### Pre-built Binaries
-Pre-built linux binaries are available from the [GitHub releases page](https://github.com/OscarAspelin95/sintax_rs/releases). Note that these binaries are **not optimized** for a specific CPU architecture.
+Pre-built linux binaries are available from the [GitHub releases page](https://github.com/OscarAspelin95/sintax_rs/releases). 
+
+**NOTE** from sintax_rs version `v.0.0.2` the release binary is compiled with `x86-64-v3` and hence requires `x86-64` architecture to work. 
 
 ### Building from Source (Recommended)
 For best performance, compile from source with CPU-specific optimizations. Clone the repository or download the source code, enter the sintax_rs directory, and run:<br>
-`RUSTFLAGS="-C target-cpu=native" cargo build --release`
-
-Alternatively, instead of `native`, use `x86-64-v3.`.
+`cargo build --release`. The config file `.cargo/config.toml` is pre-set to `target-cpu=native` and can be changed.
 
 The generated binary is available in `target/release/sintax_rs`.
 
 ## Database
-If using `sintax_rs` standalone, a database fasta with a certain header structure is required. The currently easiest way is to use the `database.py` script from the [amplipore](https://github.com/OscarAspelin95/amplipore/) repository to generate a `sintax_rs` friendly database. Or simply, use `amplipore` itself if the goal is to run a complete classification algorithm.
+If using `sintax_rs` standalone, a database fasta with a certain header structure is encouraged. The currently easiest way is to use the `database.py` script from the [amplipore](https://github.com/OscarAspelin95/amplipore/) repository to generate a `sintax_rs` friendly database. Or simply, use `amplipore` itself if the goal is to run a complete classification algorithm.
 
 ## Usage
 Run with:<br>
