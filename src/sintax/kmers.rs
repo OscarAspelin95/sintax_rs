@@ -1,12 +1,13 @@
 use crate::utils::Config;
 use packed_seq::PackedNSeqVec;
 use rstest::rstest;
+use rustc_hash::FxBuildHasher;
 use std::collections::HashSet;
 
-pub fn kmerize(config: &Config, nt_string: &[u8]) -> HashSet<u64> {
+pub fn kmerize(config: &Config, nt_string: &[u8]) -> HashSet<u64, FxBuildHasher> {
     let min_len = config.kmer_size + config.window_size - 1;
     if nt_string.len() < min_len {
-        return HashSet::new();
+        return HashSet::with_hasher(FxBuildHasher);
     }
     let packed = PackedNSeqVec::from_ascii(nt_string);
     let mut positions = vec![];

@@ -1,12 +1,11 @@
 use crate::args::Args;
 use crate::errors::AppError;
 use crate::sintax::{build_reverse_index, classify_queries};
-use crate::utils::{Config, fasta_reader};
+use crate::utils::{Config, parse_fasta};
 
-use bio::io::fasta::Reader;
 use log::info;
 use std::fs::File;
-use std::io::{BufReader, BufWriter};
+use std::io::BufWriter;
 use std::sync::{Arc, Mutex};
 
 pub fn sintax_classify(args: Args) -> Result<(), AppError> {
@@ -21,10 +20,12 @@ pub fn sintax_classify(args: Args) -> Result<(), AppError> {
     }
 
     // Read reference fasta.
-    let database_reader: Reader<BufReader<File>> = fasta_reader(&args.database)?;
+    info!("Loading database sequences...");
+    let db_records = parse_fasta(&args.database)?;
 
     // Read query fasta.
-    let query_reader: Reader<BufReader<File>> = fasta_reader(&args.query)?;
+    info!("Loading query sequences...");
+    let query_records = parse_fasta(&args.query)?;
 
     // For writing results to file.
     let writer = Arc::new(Mutex::new(BufWriter::new(File::create(&args.outfile)?)));
@@ -33,14 +34,14 @@ pub fn sintax_classify(args: Args) -> Result<(), AppError> {
 
     // Build reverse index for entire database.
     info!("Building reverse index...");
-    let (reverse_index, valid_records) = build_reverse_index(database_reader, &config);
+    let reverse_index = build_reverse_index(&db_records, &config);
 
     info!("Classifying queries...");
     classify_queries(
         &config,
         &reverse_index,
-        valid_records.as_slice(),
-        query_reader,
+        &db_records,
+        &query_records,
         writer,
     )?;
 

@@ -1,8 +1,6 @@
 use crate::args::Args;
 use crate::errors::AppError;
-use bio::io::fasta::Reader;
-use std::fs::File;
-use std::io::BufReader;
+use needletail::parse_fastx_file;
 use std::path::Path;
 
 const VALID_FASTA_EXTENSIONS: &[&str] = &["fasta", "fa", "fsa", "fna"];
@@ -25,6 +23,11 @@ impl From<Args> for Config {
     }
 }
 
+pub struct FastaRecord {
+    pub id: String,
+    pub seq: Vec<u8>,
+}
+
 fn validate_fasta_extension(f: &Path) -> Result<(), AppError> {
     let ext = f.extension().and_then(|e| e.to_str()).unwrap_or("");
     if !VALID_FASTA_EXTENSIONS.contains(&ext) {
@@ -33,12 +36,26 @@ fn validate_fasta_extension(f: &Path) -> Result<(), AppError> {
     Ok(())
 }
 
-pub fn fasta_reader(f: &Path) -> Result<Reader<BufReader<File>>, AppError> {
+pub fn parse_fasta(f: &Path) -> Result<Vec<FastaRecord>, AppError> {
     if !f.is_file() {
         return Err(AppError::FileNotFound(f.display().to_string()));
     }
     validate_fasta_extension(f)?;
-    let reader = Reader::from_file(f)
+
+    let mut reader = parse_fastx_file(f)
         .map_err(|e| AppError::FastaReadError(format!("{}: {}", f.display(), e)))?;
-    Ok(reader)
+
+    let mut records = Vec::new();
+    while let Some(result) = reader.next() {
+        let rec = result.map_err(|e| AppError::FastaReadError(format!("{}: {}", f.display(), e)))?;
+        let id = std::str::from_utf8(rec.id())
+            .map_err(|e| AppError::FastaReadError(format!("{}: {}", f.display(), e)))?
+            .to_string();
+        records.push(FastaRecord {
+            id,
+            seq: rec.seq().to_vec(),
+        });
+    }
+
+    Ok(records)
 }

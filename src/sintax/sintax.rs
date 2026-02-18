@@ -1,10 +1,8 @@
 use crate::errors::AppError;
 use crate::sintax::kmerize;
-use crate::utils::Config;
-use bio::io::fasta::Reader;
-use bio::io::fasta::Record;
-use dashmap::DashMap;
+use crate::utils::{Config, FastaRecord};
 use fixedbitset::FixedBitSet;
+use hashbrown::HashMap;
 use indicatif::ProgressBar;
 use indicatif::ProgressStyle;
 use rand::prelude::*;
@@ -13,25 +11,24 @@ use rustc_hash::FxBuildHasher;
 use std::collections::HashSet;
 use std::fs::File;
 use std::io::BufWriter;
-use std::io::{BufReader, Write};
+use std::io::Write;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
 fn bootstrap_classify_query(
     query_hashes: &mut [&u64],
     query_name: &str,
-    reverse_index: &DashMap<u64, FixedBitSet, FxBuildHasher>,
-    valid_records: &[Record],
+    reverse_index: &HashMap<u64, FixedBitSet, FxBuildHasher>,
+    valid_records: &[FastaRecord],
     config: &Config,
 ) -> String {
-    // For randomizing hashes.
     let mut rng: ThreadRng = rand::rng();
 
     let mut iterations: Vec<String> = Vec::with_capacity(config.num_bootstraps);
+    let mut counts: Vec<usize> = vec![0; valid_records.len()];
 
-    // Bootstrap iterations.
     for i in 0..config.num_bootstraps {
-        let mut counts: Vec<usize> = vec![0; valid_records.len()];
+        counts.fill(0);
 
         for _ in 0..config.num_query_hashes {
             let random_index = rng.random_range(0..query_hashes.len());
@@ -48,7 +45,7 @@ fn bootstrap_classify_query(
             let result_s = format!(
                 "{}\t{}\t{}\t{}",
                 query_name,
-                valid_records[index].id(),
+                valid_records[index].id,
                 max_count,
                 i + 1
             );
@@ -61,9 +58,9 @@ fn bootstrap_classify_query(
 
 pub fn classify_queries(
     config: &Config,
-    reverse_index: &DashMap<u64, FixedBitSet, FxBuildHasher>,
-    valid_records: &[Record],
-    query_reader: Reader<BufReader<File>>,
+    reverse_index: &HashMap<u64, FixedBitSet, FxBuildHasher>,
+    valid_records: &[FastaRecord],
+    queries: &[FastaRecord],
     writer: Arc<Mutex<BufWriter<File>>>,
 ) -> Result<(), AppError> {
     let spinner: ProgressBar = ProgressBar::new_spinner();
@@ -72,24 +69,21 @@ pub fn classify_queries(
         "{spinner:.blue} [{elapsed_precise}]",
     )?);
 
-    query_reader.records().par_bridge().for_each(|record| {
-        if let Ok(r) = record {
-            let query_hashes: HashSet<u64> = kmerize(config, r.seq());
+    queries.par_iter().for_each(|r| {
+        let query_hashes: HashSet<u64, FxBuildHasher> = kmerize(config, &r.seq);
 
-            // This should be relatively fast if sequences are short.
-            let mut query_vec: Vec<&u64> = query_hashes.iter().collect();
+        let mut query_vec: Vec<&u64> = query_hashes.iter().collect();
 
-            let bootstrap_result = bootstrap_classify_query(
-                &mut query_vec,
-                r.id(),
-                reverse_index,
-                valid_records,
-                config,
-            );
+        let bootstrap_result = bootstrap_classify_query(
+            &mut query_vec,
+            &r.id,
+            reverse_index,
+            valid_records,
+            config,
+        );
 
-            let mut w = writer.lock().expect("Mutex lock fail.");
-            writeln!(w, "{}", bootstrap_result).unwrap()
-        }
+        let mut w = writer.lock().expect("Mutex lock fail.");
+        writeln!(w, "{}", bootstrap_result).unwrap()
     });
 
     let mut writer = Arc::into_inner(writer)
