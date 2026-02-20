@@ -88,16 +88,16 @@ pub fn classify_queries(
             );
 
             let mut w = writer.lock().expect("Mutex lock fail.");
-            writeln!(w, "{}", bootstrap_result).unwrap()
+            writeln!(w, "{}", bootstrap_result).expect("Failed to write results.")
         }
     });
 
     let mut writer = Arc::into_inner(writer)
-        .unwrap()
+        .expect("Failed to extract inner value from Arc")
         .into_inner()
         .expect("Mutex poisoned");
-    writer.flush()?;
 
+    writer.flush()?;
     spinner.finish();
 
     Ok(())
