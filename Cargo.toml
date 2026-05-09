@@ -8,8 +8,8 @@ rayon = { version = "1.11.0" }
 rstest = { version = "0.26.1" }
 clap = { version = "4.6.0", features = ["derive"] }
 log = { version = "0.4.29" }
-simple_logger = { version = "5.0.0" }
-bio = { version = "2.3.0" }
+simple_logger = { version = "5.1.0" }
+bio = { version = "3.0.0" }
 flate2 = { version = "1.1.5" }
 rand = { version = "0.10.0" }
 fixedbitset = { version = "0.5.7" }
