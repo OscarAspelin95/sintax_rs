@@ -13,7 +13,7 @@ bio = { version = "3.0.0" }
 flate2 = { version = "1.1.5" }
 rand = { version = "0.10.0" }
 fixedbitset = { version = "0.5.7" }
-dashmap = { version = "6.1.0" }
+dashmap = { version = "6.2.1" }
 rustc-hash = { version = "2.1.2" }
 simd-minimizers = { version = "2.0.1" }
 packed-seq = "4.2.0"
