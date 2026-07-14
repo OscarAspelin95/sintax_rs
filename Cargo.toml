@@ -16,6 +16,6 @@ fixedbitset = { version = "0.5.7" }
 dashmap = { version = "6.2.1" }
 rustc-hash = { version = "2.1.2" }
 simd-minimizers = { version = "2.0.1" }
-packed-seq = "4.2.0"
+packed-seq = "5.0.0"
 indicatif = { version = "0.18.3" }
 thiserror = { version = "2.0.18" }
